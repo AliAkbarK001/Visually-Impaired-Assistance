@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Blind Assistant - Object Detection</title>
+      <link rel="shotcut icon" sizes="60x60" href="https://www.shutterstock.com/image-vector/blind-person-road-crossing-warning-260nw-2444870009.jpg">
+
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    .container {
+      position: relative;
+      width: 640px; /* Set the width of the container */
+      height: 480px; /* Set the height of the container */
+      margin: 0 auto; /* Center the container horizontally */
+    }
+
+    #webcamFeed,
+    #outputCanvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+    
+   footer{
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            text-align: center;
+            padding: 10px 0;
+            background-color: #e8e8e8;
+            color: black;
+   }
+  </style>
+  <body>
+    <h1>Blind Assistant - Object Detection</h1>
+    <div class="container">
+      <video autoplay playsinline muted id="webcamFeed"></video>
+      <canvas id="outputCanvas"></canvas>
+    </div>
+    
+
+    <script>
+      async function runObjectDetection() {
+        const videoElement = document.getElementById("webcamFeed");
+        const canvasElement = document.getElementById("outputCanvas");
+        const model = await cocoSsd.load(); // Load the COCO-SSD model
+
+        // Request access to the user's webcam
+        navigator.mediaDevices
+          .getUserMedia({ video: true })
+          .then(stream => {
+            videoElement.srcObject = stream;
+          })
+          .catch(error => {
+            console.error("Error accessing webcam:", error);
+          });
+
+        videoElement.addEventListener("loadeddata", () => {
+          setInterval(async () => {
+            canvasElement
+              .getContext("2d")
+              .drawImage(
+                videoElement,
+                0,
+                0,
+                canvasElement.width,
+                canvasElement.height
+              );
+            const predictions = await model.detect(canvasElement);
+
+            // Display predictions and speak out loud
+            const ctx = canvasElement.getContext("2d");
+            ctx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+            predictions.forEach(prediction => {
+              ctx.beginPath();
+              ctx.rect(
+                prediction.bbox[0],
+                prediction.bbox[1],
+                prediction.bbox[2],
+                prediction.bbox[3]
+              );
+              ctx.lineWidth = 2;
+              ctx.strokeStyle = "blue";
+              ctx.fillStyle = "blue";
+              ctx.stroke();
+              ctx.fillText(
+                prediction.class,
+                prediction.bbox[0],
+                prediction.bbox[1] > 10 ? prediction.bbox[1] - 5 : 10
+              );
+
+              // Speak out the detected object class
+              speak(prediction.class);
+            });
+          }, 500); // Run detection every second
+        });
+      }
+
+      // Function to speak out loud using text-to-speech (TTS)
+      function speak(text) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        window.speechSynthesis.speak(utterance);
+      }
+
+      runObjectDetection(); // Start object detection
+
+      // Function to read the entire webpage content using text-to-speech
+  async function readPageAloud() {
+    // Get all text content from the webpage
+    var entirePageText = document.body.innerText;
+
+    // Create a new SpeechSynthesisUtterance instance
+    var utterance = new SpeechSynthesisUtterance();
+
+    // Set the text that will be read aloud
+    utterance.text = entirePageText;
+
+    // Using speech synthesis to read the text
+    window.speechSynthesis.speak(utterance);
+  }
+
+  // Attach an event listener to the button
+  document.getElementById("speakButton").addEventListener("click", function () {
+    // Call the readPageAloud function when the button is clicked
+    readPageAloud();
+  });
+    </script>
+     <footer id="checkAuthor">
+  <button id="speakButton">Read Page Aloud</button>
+      <p>
+        Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | This  Application <i class="icon-heart color-danger" aria-hidden="true"></i>
+        Developed by
+        <a href="https://ali-akbar-k.github.io/PORTFOLIO/">Ali Akbar K</a>
+      </p>
+    </footer>
+  </body>
+</html>

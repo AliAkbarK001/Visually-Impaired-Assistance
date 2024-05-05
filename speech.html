@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text-to-Speech & Speech-to-Text</title>
+      <link rel="shotcut icon" sizes="60x60" href="https://www.shutterstock.com/image-vector/blind-person-road-crossing-warning-260nw-2444870009.jpg">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+        textarea {
+            width: 80%;
+            height: 100px;
+            margin: 10px auto;
+            padding: 10px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+         h1 {
+        text-align: center;
+        padding: 20px;
+        background-color: #f0f0f0;
+      }
+        footer{
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            text-align: center;
+            padding: 10px 0;
+            background-color: #e8e8e8;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+    <h1>Text-to-Speech & Speech-to-Text</h1>
+
+    <textarea id="textInput" placeholder="Type or paste text here..."></textarea><br>
+    <button onclick="convertTextToSpeech()">Convert Text to Speech</button>
+    <button onclick="convertSpeechToText()">Convert Speech to Text</button>
+    <button onclick="copyToClipboard()">Copy to Clipboard</button>
+
+    <p id="speechOutput"></p>
+
+    <script>
+        // Text-to-Speech function
+        function convertTextToSpeech() {
+            const text = document.getElementById('textInput').value;
+            const utterance = new SpeechSynthesisUtterance(text);
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // Speech-to-Text function
+        function convertSpeechToText() {
+            const recognition = new webkitSpeechRecognition() || new SpeechRecognition();
+            recognition.lang = 'en-US';
+
+            recognition.onresult = function(event) {
+                const speechResult = event.results[0][0].transcript;
+                document.getElementById('textInput').value = speechResult;
+            };
+
+            recognition.start();
+        }
+
+        // Copy text to clipboard
+        function copyToClipboard() {
+            const textToCopy = document.getElementById('textInput').value;
+            navigator.clipboard.writeText(textToCopy)
+                .then(() => {
+                    alert('Text copied to clipboard!');
+                })
+                .catch(err => {
+                    console.error('Unable to copy to clipboard:', err);
+                });
+        }
+    </script>
+    <footer id="checkAuthor">
+      <p>
+        Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | This Application  <i class="icon-heart color-danger" aria-hidden="true"></i>
+        Developed by
+        <a href="https://ali-akbar-k.github.io/PORTFOLIO/">Ali Akbar K</a>
+      </p>
+    </footer>
+</body>
+</html>
