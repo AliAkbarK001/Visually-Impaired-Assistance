@@ -1,75 +1,137 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Blind Assistant - Voice Interaction</title>
-    <link
-      rel="shotcut icon"
-      sizes="60x60"
-      href="https://www.shutterstock.com/image-vector/blind-person-road-crossing-warning-260nw-2444870009.jpg"
-    />
+// Check browser support for SpeechRecognition and SpeechSynthesis
+if ("SpeechRecognition" in window || "webkitSpeechRecognition" in window) {
+  const recognition = new (window.SpeechRecognition ||
+    window.webkitSpeechRecognition)();
+  recognition.continuous = false; // Listen for a single speech recognition result
 
-    <style>
-      header {
-        text-align: center;
-        padding: 20px;
-        background-color: #f0f0f0;
-      }
-      button {
-        padding: 10px 20px;
-        border-radius: 5px;
-        border: none;
-        outline: none;
-        background-color: #a4d6b3;
-        color: rgb(40, 19, 26);
-        margin-top: 10px;
-        cursor: pointer;
-        font-size: larger;
-      }
-      body {
-        display: flex;
-        align-items: center;
-        flex-direction: column;
-        justify-content: center;
-        gap: 20px;
-        height: 100vh;
-      }
-      footer {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        text-align: center;
-        padding: 10px 0;
-        background-color: #e8e8e8;
-        color: black;
-      }
-    </style>
-  </head>
-  <body>
-    <header>
-      <h1>Welcome to Blind Assistant</h1>
-    </header>
+  recognition.onstart = () => {
+    console.log("Voice assistant started listening");
+  };
 
-    <button onclick="startVoiceAssistant()">Start Voice Assistant</button>
-    <div id="userMessage"></div>
-    <div id="assistantResponse"></div>
+  recognition.onresult = event => {
+    const spokenText = event.results[0][0].transcript.trim().toLowerCase();
+    console.log("User said:", spokenText);
+    document.getElementById(
+      "userMessage"
+    ).textContent = `You said: ${spokenText}`;
 
-    <script src="voiceAs.js"></script>
-    <footer id="checkAuthor">
-      <p>
-        Copyright &copy;
-        <script>
-          
-          document.write(new Date().getFullYear());
-        </script>
-        
-        All rights reserved | This Application
-        <i class="icon-heart color-danger" aria-hidden="true"></i>
-        Developed by
-        <a href="https://ali-akbar-k.github.io/PORTFOLIO/">Mr.Ali Akbar K</a>
-      </p>
-    </footer>
-  </body>
-</html>
+    processVoiceCommand(spokenText);
+  };
+
+  recognition.onerror = event => {
+    console.error("Speech recognition error:", event.error);
+  };
+
+  function startVoiceAssistant() {
+    recognition.start();
+  }
+
+  function processVoiceCommand(spokenText) {
+    const commands = {
+      "open whatsapp": openWhatsApp,
+      "open google maps": openGoogleMaps,
+      "open google photos": openGooglePhotos,
+      "open youtube": openYouTube,
+      "open chat assistant": openChatGPT,
+      "open google": openGoogle,
+      "open object detection": openObjectDetection,
+      "open voice assistance": openVoiceAssistance,
+      "open message writer": openMessageWriter,
+      "open image to text": openImageToText,
+      "open contact details": openContactDetails,
+      // Add more commands and corresponding functions here...
+    };
+
+    if (commands.hasOwnProperty(spokenText)) {
+      const action = commands[spokenText];
+      action();
+    } else {
+      respond("Sorry, I didn't understand that command.");
+    }
+  }
+
+  function respond(message) {
+    const synth = window.speechSynthesis;
+    const utterance = new SpeechSynthesisUtterance(message);
+    synth.speak(utterance);
+    document.getElementById(
+      "assistantResponse"
+    ).textContent = `Assistant: ${message}`;
+  }
+
+  // Functions to open various services
+  function openGoogle() {
+    window.open("https://www.google.com/", "_blank");
+    respond("Opening Google.");
+  }
+
+  function openWhatsApp() {
+    window.open("https://web.whatsapp.com", "_blank");
+    respond("Opening WhatsApp.");
+  }
+
+  function openGoogleMaps() {
+    window.open("https://www.google.com/maps", "_blank");
+    respond("Opening Google Maps.");
+  }
+
+  function openGooglePhotos() {
+    window.open("https://photos.google.com", "_blank");
+    respond("Opening Google Photos.");
+  }
+
+  function openYouTube() {
+    window.open("https://www.youtube.com", "_blank");
+    respond("Opening YouTube.");
+  }
+
+  function openObjectDetection() {
+    window.open(
+      "http://127.0.0.1:5500/Visually-Impaired-Assistance-main/ObjectDectetion.html",
+      "_blank"
+    );
+    respond("Opening Object Detection.");
+  }
+
+  function openVoiceAssistance() {
+    window.open(
+      "http://127.0.0.1:5500/Visually-Impaired-Assistance-main/voiceAssi.html",
+      "_blank"
+    );
+    respond("Opening Voice Assistance.");
+  }
+
+  function openMessageWriter() {
+    window.open(
+      "http://127.0.0.1:5500/Visually-Impaired-Assistance-main/speech.html",
+      "_blank"
+    );
+    respond("Opening Message Writer.");
+  }
+
+  function openImageToText() {
+    window.open(
+      "http://127.0.0.1:5500/Visually-Impaired-Assistance-main/i1.html",
+      "_blank"
+    );
+    respond("Opening Image To Text.");
+  }
+
+  function openContactDetails() {
+    window.open(
+      "http://127.0.0.1:5500/Visually-Impaired-Assistance-main/contact.html",
+      "_blank"
+    );
+    respond("Opening Contact Details.");
+  }
+
+  function openChatGPT() {
+    // Implement chat with ChatGPT functionality
+    // Example: Use ChatGPT API to interact with a chatbot
+    respond("Opening ChatGPT for chatting.");
+  }
+} else {
+  console.error(
+    "Speech recognition and synthesis not supported by this browser."
+  );
+}
