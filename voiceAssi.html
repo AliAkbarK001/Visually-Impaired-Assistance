@@ -58,6 +58,7 @@
 
     <script src="voiceAs.js"></script>
     <footer id="checkAuthor">
+      <button id="speakButton">Read Page Aloud</button>
       <p>
         Copyright &copy;
         <script>
@@ -69,5 +70,29 @@
         <a href="https://ali-akbar-k.github.io/PORTFOLIO/">Mr.Ali Akbar K</a>
       </p>
     </footer>
-  </body>
+     </body>
+    <script>
+      // Function to read the entire webpage content using text-to-speech
+      async function readPageAloud() {
+        // Get all text content from the webpage
+        var entirePageText = document.body.innerText;
+
+        // Create a new SpeechSynthesisUtterance instance
+        var utterance = new SpeechSynthesisUtterance();
+
+        // Set the text that will be read aloud
+        utterance.text = entirePageText;
+
+        // Using speech synthesis to read the text
+        window.speechSynthesis.speak(utterance);
+      }
+
+      // Attach an event listener to the button
+      document
+        .getElementById("speakButton")
+        .addEventListener("click", function () {
+          // Call the readPageAloud function when the button is clicked
+          readPageAloud();
+        });
+    </script>
 </html>
